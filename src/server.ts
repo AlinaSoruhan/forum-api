@@ -1,6 +1,5 @@
 import express from 'express';
 
-// Виправлено імпорт: додано правильний шлях до файлу та імпортовано фабрику замість типу
 import { createPostRepository } from './domain/post/repository.js';
 import { createPostService } from './domain/post/service.js';
 import { createPostHandler } from './domain/post/handler.js';
