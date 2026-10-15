@@ -1,40 +1,19 @@
 import express from 'express';
+import { createCategoryService } from './domain/category/service.js';
+import { createCategoryRepository } from './domain/category/repository.js';
+import { CategoryHandler } from './domain/category/handler.js';
 
-import { createPostRepository } from './domain/post/repository.js';
-import { createPostService } from './domain/post/service.js';
-import { createPostHandler } from './domain/post/handler.js';
-import { createPostRouter } from './domain/post/router.js';
-
-class MockPrismaClient {
-  post = {
-    create: async (args: any) => ({
-      id: Math.floor(Math.random() * 1000),
-      title: args.data.title,
-      content: args.data.content,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }),
-    findMany: async () => [
-      { id: 1, title: 'Перший пост Prisma', content: 'Контент 1' },
-      { id: 2, title: 'Другий пост Prisma', content: 'Контент 2' }
-    ]
-  };
-}
 
 const app = express();
 app.use(express.json());
 
-const db = new MockPrismaClient();
+// Збирання модулю через функції
+const categoryRepository = createCategoryRepository();
+const categoryService = createCategoryService(categoryRepository);
 
+// Передаємо створений об'єкт сервісу в хендлер
+const categoryHandler = new CategoryHandler(categoryService); 
+const categoryRouter = createCategoryRouter(categoryHandler);
 
-const postRepository = createPostRepository(db);
-const postService = createPostService(postRepository);
-const postHandler = createPostHandler(postService);     
-const postRouter = createPostRouter(postHandler);       
+app.use('/categories', categoryRouter);
 
-app.use('/api/posts', postRouter);
-
-const PORT = 6767;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
